@@ -9,37 +9,87 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 # Load data
-df = pd.read_csv('C:\\Users\\3104470\\Desktop\\output\\sentences datasets\\df_final.csv')
+df = pd.read_csv('df_final.csv')
 
-# Controls when the workflow will run
-on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+# Initialize and fit the BERTopic model on the processed column of the dataset
+topic_model = BERTopic(nr_topics=80)
+topics, probs = topic_model.fit_transform(df['processed'].tolist())
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+topic_model.get_topic_info()
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
-jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+# Get the topic information as a DataFrame
+topic_info = topic_model.get_topic_info()
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+#visualize the 8 most representative words of the first 12 topics
+topic_model.visualize_barchart(top_n_topics = 12, n_words = 8)
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+#visualize info of each sentence, including in which topic is clustered
+topic_model.get_document_info(df['processed'].tolist())
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+#visualize similarity matrix
+topic_model.visualize_heatmap()
+
+#visualize hierarchical clustering
+hierarchical_topics = topic_model.hierarchical_topics(df['processed'].tolist())
+topic_model.visualize_hierarchy(hierarchical_topics=hierarchical_topics)
+
+#plot 2D UMAP represetnation and highlight top 15 topics
+
+#display in line in jupyter lab
+%matplotlib inline
+
+# Prepare data for plotting
+embeddings = topic_model._extract_embeddings(df['processed'], method="document")
+umap_model = UMAP(n_neighbors=10, n_components=2, min_dist=0.0, metric='cosine').fit(embeddings)
+df_umap = pd.DataFrame(umap_model.embedding_, columns=["x", "y"])
+df_umap["topic"] = topics
+
+# Plot parameters
+top_n = 15
+fontsize = 12
+# Slice data
+to_plot = df_umap.copy()
+to_plot.loc[to_plot.topic >= top_n, 'topic'] = -1
+outliers = to_plot[to_plot.topic == -1]
+non_outliers = to_plot[to_plot.topic != -1]
+#this part of code considers only the first 10 topics, and consider outliers the others, assigning them with a index -1
+
+# Visualize topics
+cmap = matplotlib.colors.ListedColormap(['#FF5722', # Red
+                                         '#03A9F4', # Blue
+                                         '#4CAF50', # Green
+                                         '#80CBC4', # FFEB3B
+                                         '#673AB7', # Purple
+                                         '#795548', # Brown
+                                         '#E91E63', # Pink
+                                         '#212121', # Black
+                                         '#00BCD4', # Light Blue
+                                         '#CDDC39', # Yellow/Red
+                                         '#AED581', # Light Green
+                                         '#FFE082', # Light Orange
+                                         '#BCAAA4', # Light Brown
+                                         '#B39DDB', # Light Purple
+                                         '#F48FB1', # Light Pink
+                                         ])
+
+# Visualize outliers + inliers
+fig, ax = plt.subplots(figsize=(15, 15))
+scatter_outliers = ax.scatter(outliers['x'], outliers['y'], c="#808080", s=3, alpha=.3)
+scatter = ax.scatter(non_outliers['x'], non_outliers['y'], c=non_outliers['topic'], s=4, alpha=.3, cmap=cmap)
+
+# Add topic names to clusters
+centroids = to_plot.groupby("topic").mean().reset_index().iloc[1:]
+for row in centroids.iterrows():
+    topic = int(row[1]['topic'])
+    topic_words = topic_model.get_topic(topic)
+    if topic_words:
+        text = f"{topic}: " + "_".join([x[0] for x in topic_words[:3]])
+        ax.text(row[1]['x'], row[1]['y']*1.01, text, fontsize=fontsize, horizontalalignment='center')
+
+ax.text(0.99, 0.01, f"BERTopic - Top {top_n} topics", transform=ax.transAxes, horizontalalignment="right", color="black")
+plt.xticks([], [])
+plt.yticks([], [])
+plt.show()
+
+#intertopic distance map
+topic_model.visualize_topics()
