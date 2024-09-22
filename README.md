@@ -8,9 +8,15 @@
 
 <h1> Human Mobility Analysis in the UNFCCC Documentation</h1>
 
-<p>This repository contains the code used to analyze human mobility-related sentences extracted from over 9,000 official UNFCCC documents. The analysis involves Natural Language Processing (NLP) techniques, including word embeddings, clustering, and topic mining. 
-Here you can find the pinpoint database with the original PDF downloaded: https://journaliststudio.google.com/pinpoint/search?collection=b498f56be9c75e07&utm_source=collection_share_link
-HBelow is a step-by-step explanation of the Python code implemented for this project.</p>
+<p>This repository contains the code used to analyze human mobility-related sentences extracted from over 9,000 official UNFCCC documents. The analysis involves Natural Language Processing (NLP) techniques, including word embeddings, clustering, and topic mining.</p>
+
+<ul>
+  <li>Here you can find the pinpoint database with the original PDF downloaded: <a href="https://journaliststudio.google.com/pinpoint/search?collection=b498f56be9c75e07&utm_source=collection_share_link">Pinpoint Database</a></li>
+  <li>Here is a Google Drive Folder where you can download the documents: <a href="https://drive.google.com/drive/folders/1mAyZk5G5-eC081sFoHKMJJCQqEOGX5vM?usp=drive_link">Google Drive Folder</a></li>
+</ul>
+
+<p>Below is a step-by-step explanation of the Python code implemented for this project.</p>
+
 
 <h2>1. Import Relevant Packages</h2>
 
@@ -31,8 +37,6 @@ import matplotlib.pyplot as plt
 from collections import Counter
 from nltk.tokenize import word_tokenize
 from umap import UMAP
-import matplotlib
-import matplotlib.pyplot as plt
 </code></pre>
 
 <h2>2. Download Dataset Locally</h2>
