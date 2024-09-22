@@ -8,7 +8,9 @@
 
 <h1> Human Mobility Analysis in the UNFCCC Documentation</h1>
 
-<p>This repository contains the code used to analyze human mobility-related sentences extracted from over 9,000 official UNFCCC documents. The analysis involves Natural Language Processing (NLP) techniques, including word embeddings, clustering, and topic mining. Below is a step-by-step explanation of the code implemented for this project.</p>
+<p>This repository contains the code used to analyze human mobility-related sentences extracted from over 9,000 official UNFCCC documents. The analysis involves Natural Language Processing (NLP) techniques, including word embeddings, clustering, and topic mining. 
+Here you can find the pinpoint database with the original PDF downloaded: https://journaliststudio.google.com/pinpoint/search?collection=b498f56be9c75e07&utm_source=collection_share_link
+HBelow is a step-by-step explanation of the Python code implemented for this project.</p>
 
 <h2>1. Import Relevant Packages</h2>
 
